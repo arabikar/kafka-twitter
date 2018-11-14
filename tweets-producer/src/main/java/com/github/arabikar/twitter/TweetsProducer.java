@@ -119,13 +119,14 @@ public class TweetsProducer {
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         // create safe Producer
-        properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
-        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
-        properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));
-        properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
+        properties.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true"); //in case ack doesn't reach producer, this prevents duplicates
+        properties.setProperty(ProducerConfig.ACKS_CONFIG, "all"); //get response from leader broker and all replicas
+        properties.setProperty(ProducerConfig.RETRIES_CONFIG, Integer.toString(Integer.MAX_VALUE));//keep retrying in case o failure
+        properties.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5"); //idempotent handles the ordering
 
+        //enable compression and batching to improve performance
         properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
-        properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");
+        properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20"); //how long to wait before sending data to kafka (to allow time to batch messages)
         properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32 * 1024));
 
         // create the producer
